@@ -35,8 +35,7 @@ class Container() {
     @PublishedApi
     internal fun resolve(type: KClass<*>): Any {
         try {
-            val fred = creator.createType(type)
-            return fred
+            return creator.createType(type)
         } catch (ex: StackOverflowError) {
             throw CircularDependencyException()
         }
