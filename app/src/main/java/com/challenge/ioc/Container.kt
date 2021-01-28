@@ -1,12 +1,13 @@
 package com.challenge.ioc
 
+import com.challenge.ioc.errors.CircularDependencyException
 import com.challenge.ioc.errors.RegistrationException
 import com.challenge.ioc.errors.ResolutionException
 import kotlin.reflect.KClass
 
 class Container() {
 
-    private var bindings: MutableMap<KClass<*>, KClass<*>> = mutableMapOf()
+    private var bindings: MutableMap<KClass<*>, Binding> = mutableMapOf()
 
     /***
      * usage: register<interface, implementation>()
@@ -22,7 +23,7 @@ class Container() {
         if (!type.java.isAssignableFrom(implementation.java)) {
             throw (RegistrationException(type, implementation))
         }
-        bindings[type] = implementation
+        bindings[type] = Binding(type, implementation)
     }
 
     inline fun <reified Type : Any> resolve(): Any {
@@ -30,17 +31,15 @@ class Container() {
     }
 
     fun resolve(type: KClass<*>): Any {
-        return create(getBinding(type))
-
-//        try {
-//            return creator.create(bindings, activationContext)
-//        } catch (ex: StackOverflowError) {
-//            throw CircularDependencyException(ex)
-//        }
+        try {
+            return create(getBinding(type))
+        } catch (ex: StackOverflowError) {
+            throw CircularDependencyException()
+        }
     }
 
-    private fun create(type: KClass<*>): Any {
-        val targetConstructor = type.constructors.first()
+    private fun create(binding: Binding): Any {
+        val targetConstructor = binding.implementation.constructors.first()
         val targetParams = targetConstructor.parameters.toList()
 
         val dependencies = mutableListOf<Any>()
@@ -53,7 +52,7 @@ class Container() {
         return targetConstructor.call(*dependencies.toTypedArray())
     }
 
-    private fun getBinding(type: KClass<*>): KClass<*> {
+    private fun getBinding(type: KClass<*>): Binding {
         if (!bindings.containsKey(type)) {
             throw (ResolutionException(type))
         }

@@ -1,3 +1,3 @@
 package com.challenge.testclasses
 
-interface IClass1
+class NoInterface
