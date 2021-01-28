@@ -17,11 +17,11 @@ import org.junit.Test
  */
 class ContainerTests {
 
-    private lateinit var sut: Container
+    private lateinit var sut: com.challenge.ioc.Container
 
     @Before
     fun setUp() {
-        sut = Container()
+        sut = com.challenge.ioc.Container()
     }
 
     @Test

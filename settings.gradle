@@ -1,2 +1,3 @@
 rootProject.name = "AnimalOnDemand"
 include ':app'
+include ':ioc'

@@ -5,12 +5,12 @@ import com.challenge.ioc.Container
 
 class AnimalOnDemand : Application() {
 
-    lateinit var container: Container
+    lateinit var container: com.challenge.ioc.Container
 
     override fun onCreate() {
         super.onCreate()
 
-        this.container = Container()
+        this.container = com.challenge.ioc.Container()
 
 
     }
