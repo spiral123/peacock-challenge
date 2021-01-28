@@ -24,26 +24,26 @@ class ContainerTests {
     }
 
     @Test
-    fun register_typeThenImplementationIsGood() {
+    fun verifyCanRegisterGoodTypeAndImplementation() {
         sut.register<INoDependency1, NoDependency1>()
     }
 
     @Test
-    fun register_implementationMustImplementType() {
+    fun verifyCannotRegisterTypeWithBadImplementation() {
         assertThrows(RegistrationException::class.java) {
-            sut.register<NoInterface, INoDependency1>()
+            sut.register<INoDependency1, NoInterface>()
         }
     }
 
     @Test
     fun attemptToResolveNonRegisteredTypeThrowsError() {
         assertThrows(ResolutionException::class.java) {
-            sut.resolve<NoInterface>()
+            sut.resolve<INoDependency1>()
         }
     }
 
     @Test
-    fun resolve_typeWithNoDependencies() {
+    fun verifyResolutionOfSimpleType() {
         sut.register<INoDependency1, NoDependency1>()
 
         val instance = sut.resolve<INoDependency1>()
@@ -51,15 +51,16 @@ class ContainerTests {
     }
 
     @Test
-    fun resolve_typeWithOneDependency() {
+    fun verifyResolutionOfTypeWhereImplementationHasOneDependency() {
+        sut.register<IOneDependency, OneDependency>()
         sut.register<INoDependency1, NoDependency1>()
 
-        val instance = sut.resolve<INoDependency1>()
-        assertTrue(instance is NoDependency1)
+        val instance = sut.resolve<IOneDependency>()
+        assertTrue(instance is OneDependency)
     }
 
     @Test
-    fun resolve_typeWithTwoDependencies() {
+    fun verifyResolutionOfTypeWhereImplementationHasTwoDependencies() {
         sut.register<INoDependency1, NoDependency1>()
         sut.register<INoDependency2, NoDependency2>()
         sut.register<ITwoDependencies, TwoDependencies>()
@@ -69,7 +70,7 @@ class ContainerTests {
     }
 
     @Test
-    fun resolve_complexGraph() {
+    fun verifyResolutionOfComplexGraph() {
         sut.register<INoDependency1, NoDependency1>()
         sut.register<INoDependency2, NoDependency2>()
         sut.register<ITwoDependencies, TwoDependencies>()
@@ -80,7 +81,7 @@ class ContainerTests {
     }
 
     @Test
-    fun resolve_circularDependencyFails() {
+    fun verifyResolutionOfCoDependantImplementationFails() {
         sut.register<ICircularDependency1, CircularDependency1>()
         sut.register<ICircularDependency2, CircularDependency2>()
 
