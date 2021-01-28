@@ -25,7 +25,7 @@ used in the sample:
     }
 ```
 
-``Ioc.kt`` contains the interfaces used in the examples and the concrete classes are in the **handlers** and
+``Types.kt`` contains the interfaces used in the examples and the concrete classes are in the **handlers** and
 **viewmodels** packages.
 
 All activity classes should inherit from a ``BaseActivity`` class which fetches a reference to the 
@@ -55,10 +55,10 @@ The tests try to cover all the error conditions I could think of and hopefully a
 
 # Improvements
 
-I've not written anything like this before so it's been an interesting excercise.  Looking at the code 
+I've not written anything like this before so it's been an interesting exercise.  Looking at the code 
 there are a number of areas I can immediately see where the library could be improved:
 
 * There is no concept of Scoping: at least providing support for a Singleton scope would be good.
 * Improved validation.  It should be possible to add a ``checkGraph()`` function that could be called 
-after all the types had been registered that would create the dependency graph and check it for 
+after all the types have been registered that would create the dependency graph and check it for 
 cyclic dependencies and also to ensure that all the required dependencies were present.
