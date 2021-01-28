@@ -6,8 +6,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
 
 class Container() {
-
-    private var registry = Registry()
+    @PublishedApi
+    internal var registry = Registry()
     private val creator = Creator(registry)
 
     /***
@@ -17,10 +17,8 @@ class Container() {
         register(Type::class, Implementation::class)
     }
 
-    /***
-     * usage: register(interface, implementation)
-     */
-    fun register(type: KClass<*>, implementation: KClass<*>) {
+    @PublishedApi
+    internal fun register(type: KClass<*>, implementation: KClass<*>) {
         if (!type.isSuperclassOf(implementation)) {
             throw (RegistrationException(type, implementation))
         }
@@ -30,16 +28,15 @@ class Container() {
     /***
      * usage: resolve<interface>()
      */
-    inline fun <reified Type : Any> resolve(): Any {
-        return resolve(Type::class)
+    inline fun <reified Type : Any> resolve(): Type {
+        return resolve(Type::class) as Type
     }
 
-    /***
-     * usage: resolve(interface)()
-     */
-    fun resolve(type: KClass<*>): Any {
+    @PublishedApi
+    internal fun resolve(type: KClass<*>): Any {
         try {
-            return creator.createType(type)
+            val fred = creator.createType(type)
+            return fred
         } catch (ex: StackOverflowError) {
             throw CircularDependencyException()
         }

@@ -19,6 +19,7 @@ class Creator(val registry: Registry) {
             if (!paramType.java.isInterface) {
                 throw (InvalidConstructorException(binding.implementation, param))
             }
+
             val instance = create(registry.getBinding(paramType))
             dependencies.add(instance)
         }
