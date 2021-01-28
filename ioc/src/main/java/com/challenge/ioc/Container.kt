@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSuperclassOf
 
 class Container() {
-    @PublishedApi
+
     internal var registry = Registry()
     private val creator = Creator(registry)
 
