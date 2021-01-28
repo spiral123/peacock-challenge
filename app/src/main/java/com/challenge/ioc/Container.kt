@@ -2,12 +2,13 @@ package com.challenge.ioc
 
 import com.challenge.ioc.errors.CircularDependencyException
 import com.challenge.ioc.errors.RegistrationException
-import com.challenge.ioc.errors.ResolutionException
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSuperclassOf
 
 class Container() {
 
-    private var bindings: MutableMap<KClass<*>, Binding> = mutableMapOf()
+    private var registry = Registry()
+    private val creator = Creator(registry)
 
     /***
      * usage: register<interface, implementation>()
@@ -20,43 +21,28 @@ class Container() {
      * usage: register(interface, implementation)
      */
     fun register(type: KClass<*>, implementation: KClass<*>) {
-        if (!type.java.isAssignableFrom(implementation.java)) {
+        if (!type.isSuperclassOf(implementation)) {
             throw (RegistrationException(type, implementation))
         }
-        bindings[type] = Binding(type, implementation)
+        registry.putBinding(type, implementation)
     }
 
+    /***
+     * usage: resolve<interface>()
+     */
     inline fun <reified Type : Any> resolve(): Any {
         return resolve(Type::class)
     }
 
+    /***
+     * usage: resolve(interface)()
+     */
     fun resolve(type: KClass<*>): Any {
         try {
-            return create(getBinding(type))
+            return creator.createType(type)
         } catch (ex: StackOverflowError) {
             throw CircularDependencyException()
         }
-    }
-
-    private fun create(binding: Binding): Any {
-        val targetConstructor = binding.implementation.constructors.first()
-        val targetParams = targetConstructor.parameters.toList()
-
-        val dependencies = mutableListOf<Any>()
-        targetParams.forEach { param ->
-            val paramType = param.type.classifier as KClass<*>
-            val instance = create(getBinding(paramType))
-            dependencies.add(instance)
-        }
-
-        return targetConstructor.call(*dependencies.toTypedArray())
-    }
-
-    private fun getBinding(type: KClass<*>): Binding {
-        if (!bindings.containsKey(type)) {
-            throw (ResolutionException(type))
-        }
-        return bindings[type]!!
     }
 
 }

@@ -1,8 +1,9 @@
 package com.challenge.ioc
 
+import com.challenge.ioc.errors.BindingException
 import com.challenge.ioc.errors.CircularDependencyException
+import com.challenge.ioc.errors.InvalidConstructorException
 import com.challenge.ioc.errors.RegistrationException
-import com.challenge.ioc.errors.ResolutionException
 import com.challenge.testclasses.*
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -37,7 +38,7 @@ class ContainerTests {
 
     @Test
     fun attemptToResolveNonRegisteredTypeThrowsError() {
-        assertThrows(ResolutionException::class.java) {
+        assertThrows(BindingException::class.java) {
             sut.resolve<INoDependency1>()
         }
     }
@@ -78,6 +79,15 @@ class ContainerTests {
 
         val instance = sut.resolve<INested>()
         assertTrue(instance is Nested)
+    }
+
+    @Test
+    fun verifyResolutionOfInvalidImplementationParameterFails() {
+        sut.register<IHasBadConstructor, HasBadConstructor>()
+
+        assertThrows(InvalidConstructorException::class.java) {
+            sut.resolve<IHasBadConstructor>()
+        }
     }
 
     @Test
